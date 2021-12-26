@@ -1,6 +1,7 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
-import 'firebase/compat/auth';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, getDocs, collection, getDoc, setDoc, getDocFromCache } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+export { onSnapshot } from 'firebase/firestore';
 
 const config = {
   apiKey: "AIzaSyDLGuDZDUU4enfCsPtypdOXgoIAGEZnHsM",
@@ -12,14 +13,42 @@ const config = {
   measurementId: "${config.measurementId}"
 }
 
-firebase.initializeApp(config);
 
-export const auth = firebase.auth();
-export const firestore = firebase.firestore();
+initializeApp(config);
 
-const provider = new firebase.auth.GoogleAuthProvider(); // is it necessary to include "firebase" here?
-provider.setCustomParameters({ prompt: 'select_account' });
+export const auth = getAuth();
+export const firestore = getFirestore();
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return;
+  // Checking if the authenticated user already exists in our database
+  const userRef = doc(firestore, `users/${userAuth.uid}`);
+  const snapShot = await getDoc(userRef);
+  if (!snapShot.exists()) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+    try {
+      await setDoc(userRef, {
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      })
+    } catch (err) {
+      console.log('error creating user', err.message);
+    }
+  }
 
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+  return userRef;
+  // To get all the users - this is just a practice, it has nothing to do with the actual project
+  // const colRef = collection(firestore, 'users');
+  // const colRefSnap = await getDocs(colRef);
+  // const docsSnap = colRefSnap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  // console.log(docsSnap);
 
-export default firebase;
+}
+const provider = new GoogleAuthProvider(); // is it necessary to include "firebase" here?
+provider.setCustomParameters({
+  prompt: 'select_account' // disable automatic logging
+})
+export const signInWithGoogle = () => signInWithPopup(auth, provider);
+// export default firebase;
