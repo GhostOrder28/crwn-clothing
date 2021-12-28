@@ -5,7 +5,7 @@ import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import Header from './components/header/header.component';
-import { auth, createUserProfileDocument, onSnapshot } from './firebase/firebase.utils.js';
+import { auth, createUserProfileDocument, onSnapshot, onAuthStateChanged } from './firebase/firebase.utils.js';
 
 class App extends React.Component {
   constructor(){
@@ -18,9 +18,10 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount(){
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+    this.unsubscribeFromAuth = onAuthStateChanged(auth, async userAuth => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
+        console.log(userAuth.currentUser);
         onSnapshot(userRef, (snapShot => { // the onSnapshot have something to do with the errors
           this.setState({
             currentUser: {

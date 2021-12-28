@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDocs, collection, getDoc, setDoc, getDocFromCache } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 export { onSnapshot } from 'firebase/firestore';
+export { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 
 const config = {
   apiKey: "AIzaSyDLGuDZDUU4enfCsPtypdOXgoIAGEZnHsM",
@@ -19,14 +20,20 @@ initializeApp(config);
 export const auth = getAuth();
 export const firestore = getFirestore();
 export const createUserProfileDocument = async (userAuth, additionalData) => {
+  console.log(`user uid is: ${userAuth.uid}`);
   if (!userAuth) return;
   // Checking if the authenticated user already exists in our database
   const userRef = doc(firestore, `users/${userAuth.uid}`);
   const snapShot = await getDoc(userRef);
   if (!snapShot.exists()) {
     const { displayName, email } = userAuth;
+    console.log(`LOGGING displayName from userAuth: ${displayName}`);
     const createdAt = new Date();
     try {
+      console.log('LOGGING additionalData:');
+      console.log(additionalData);
+      console.log(`LOGGING userRef:`);
+      console.log(userRef);
       await setDoc(userRef, {
         displayName,
         email,
