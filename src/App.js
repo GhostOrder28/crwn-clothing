@@ -21,14 +21,13 @@ class App extends React.Component {
     this.unsubscribeFromAuth = onAuthStateChanged(auth, async userAuth => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
-        console.log(userAuth.currentUser);
         onSnapshot(userRef, (snapShot => { // the onSnapshot have something to do with the errors
           this.setState({
             currentUser: {
               id: snapShot.id,
               ...snapShot.data()
             }
-          }, () => { console.log(this.state) })
+          })
         }))
       } else {
         this.setState({ currentUser: userAuth })

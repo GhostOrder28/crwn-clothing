@@ -19,19 +19,12 @@ class SignUp extends React.Component {
   handleSubmit = async event => {
     event.preventDefault();
     const { displayName, email, password, confirmPassword } = this.state;
-    console.log(`displayName when submitting the form: ${displayName}`);
-    console.log('auth object when submitting the form');
-    console.log(auth);
     if (password != confirmPassword) {
       alert("passwords don't match");
       return;
     }
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('LOGGING user:');
-      console.log(user);
-      console.log('LOGGING auth:');
-      console.log(auth);
       await createUserProfileDocument(user, { displayName })
       this.state = (initialState);
     } catch (err) {
